@@ -6,28 +6,19 @@
 #     print('Some modules are missing: {}'.format(e))
 
 import sys
-from download_datasets import DownloadDatasets
+from dataset_manager import DatasetManager
 from gloss_lookup import GlossLookup
-from os import system, name
 
 # Instantiate singleton classes
 gl = GlossLookup()
-dd = DownloadDatasets()
+dm = DatasetManager()
 
 def menu():
-    print(15 * '-', 'MENU', 15 * '-')
-    print('[1] Gloss Lookup' + '\n[2] Download datasets (run only once to download all datasets)' + '\n[3] Exit program')
-    print(36 * '-')
+    print()
+    print(15 * '-', 'MAIN MENU', 15 * '-')
+    print('[1] Gloss Lookup' + '\n[2] Dataset manager' + '\n[3] Exit program')
+    print(41 * '-')
     
-def clear():
-    # For windows
-    if name == 'nt':
-        _ = system('cls')
-
-    # For Mac and Linux
-    else:
-        _ = system('clear')
-
 def glossLookup():
     loop = True
     while loop:
@@ -35,14 +26,25 @@ def glossLookup():
         answer = int(input('Enter the class (an integer between 0 to 999): '))
         
         if gl.wordExists(answer):
-            print('Word: ' + gl.searchGlossary(answer) + '\n')
+            print('Word: ' + gl.searchGlossary(answer))
             loop = False
         else:
             print('Invalid class. Please enter a valid class.')
 
-# TODO 
-def downloadDatasets():
-    pass
+def datasetManager():
+    loop = True
+    while loop:
+        dm.menu()
+        answer = int(input('Enter your choice [1-3]: '))
+
+        if answer == 1:
+            dm.generateDataset()
+        elif answer == 2:
+            dm.deleteDataset()
+        elif answer == 3:
+            loop = False
+        else:
+            print('Invalid option. Please try again.')
 
 def main():
     loop = True
@@ -53,12 +55,11 @@ def main():
         if answer == 1:
             glossLookup()
         elif answer == 2:
-            pass
+            datasetManager()
         elif answer == 3:
-            pass
             loop = False
         else:
-            print('\nInvalid option. Please try again.' + '\n')
+            print('Invalid option. Please try again.')
 
     sys.exit()
 
