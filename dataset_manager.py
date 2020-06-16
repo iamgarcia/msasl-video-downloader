@@ -1,7 +1,8 @@
 import os
 import shutil
 import json
-from video import Video
+from pytube import YouTube
+from moviepy.editor import *
 
 class DatasetManager:
 
@@ -17,29 +18,28 @@ class DatasetManager:
         self.__MSASL_200 = 'MS-ASL200'
         self.__MSASL_500 = 'MS-ASL500'
         self.__MSASL_1000 = 'MS-ASL1000'
-        self.__dataset_size = 0
-
-        # Empty list to be filled with Video objects
-        self.__dataset = []
 
     def isValidDataset(self, dataset):
         return True if dataset == 1 or dataset == 2 or dataset == 3 or dataset == 4 else False
 
     def createDirectoryHandler(self, directory):
         if directory == 1:
-            self.createDirectory(self.__MSASL_100)
+            return self.createDirectory(self.__MSASL_100)
         elif directory == 2:
-            self.createDirectory(self.__MSASL_200)
+            return self.createDirectory(self.__MSASL_200)
         elif directory == 3:
-            self.createDirectory(self.__MSASL_500)
+            return self.createDirectory(self.__MSASL_500)
         else:
-            self.createDirectory(self.__MSASL_1000)
+            return self.createDirectory(self.__MSASL_1000)
+
 
     def createDirectory(self, directory):
         if not os.path.exists(directory):
             os.makedirs(directory)
+            return True
         else:
             print(directory + ' already exists.')
+            return False
 
     def deleteDirectory(self, directory):
         if os.path.exists(directory):
@@ -64,16 +64,65 @@ class DatasetManager:
         else:
             self.deleteDirectory(self.__MSASL_1000)
 
+    def datasetDirectory(self, directory):
+        if directory == 1:
+            return self.__MSASL_100
+        elif directory == 2:
+            return self.__MSASL_200
+        elif directory == 3:
+            return self.__MSASL_500
+        else:
+            return self.__MSASL_1000
+
+    def downloadAndTrim(self, dataset):
+        dataset_size = self.datasetSize(dataset)
+        downloadDirectory = self.datasetDirectory(dataset)
+
+        test_json = open('MSASL_test.json')
+        videos = json.load(test_json)
+        test_json.close()
+
+        classes_json = open('MSASL_classes.json')
+        words = json.load(classes_json)
+        classes_json.close()
+
+        for i in range(dataset_size):
+            url = videos[i]['url']
+            start_time = videos[i]['start_time']
+            end_time = videos[i]['end_time']
+            label = videos[i]['label']
+
+            title = words[label]
+
+            yt = YouTube(url)
+            stream = yt.streams.filter(adaptive=True).first()
+            stream.download(downloadDirectory, title)
+
+            clip = VideoFileClip(downloadDirectory + '/' + title + '.mp4').subclip(start_time, end_time)
+            clip.write_videofile(downloadDirectory + '/' + title + '.mp4')
+
+            # TODO: Before making the finalized MSASL_test.json, make sure that the 
+            # url is not returning Error 404 (unlisted). This will break the program.
+
+    def datasetSize(self, dataset):
+        if dataset == 1:
+            return 100
+        elif dataset == 2:
+            return 200
+        elif dataset == 3:
+            return 500
+        else:
+            return 1000
+
     def generateDataset(self):
         loop = True
         while loop:
             self.generateDatasetMenu()
             answer = int(input('Enter your choice [1-4]: '))
             if self.isValidDataset(answer):
-                self.createDirectoryHandler(answer)
-                
-                # TODO
-                
+                if self.createDirectoryHandler(answer) == True:
+                    self.downloadAndTrim(answer)
+
                 loop = False
             else:
                 print('Invalid option. Please try again.')   

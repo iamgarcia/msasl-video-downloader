@@ -22,11 +22,13 @@ class GlossLookup:
             print(self.__glossary[i])
 
     def decodeGlossary(self):
+        
         # Open MSASL_classes JSON file
-        input_file = open('MSASL_classes.json',)
+        input_file = open('MSASL_classes.json')
 
         # Read JSON encoded data from file and convert it into Python dictionary
         self.__glossary = json.load(input_file)
+        input_file.close()
 
     def wordExists(self, label_id):
         return True if label_id >= 0 and label_id <= 999 else False

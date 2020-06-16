@@ -13,7 +13,7 @@ for item in json_array:
     video_details['label'] = item['label']
     filtered_list.append(video_details)
 
-with open('MSASL_test_filtered.json', 'w') as fp:
+with open('temp/MSASL_test_filtered.json', 'w') as fp:
     fp.write(
         '[' +
         ',\n'.join(json.dumps(i) for i in filtered_list) +

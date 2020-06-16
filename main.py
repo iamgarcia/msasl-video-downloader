@@ -1,10 +1,3 @@
-# try:
-#     import video
-#     from gloss_lookup import GlossLookup
-#     import video_downloader
-# except Exception as e:
-#     print('Some modules are missing: {}'.format(e))
-
 import sys
 from dataset_manager import DatasetManager
 from gloss_lookup import GlossLookup
